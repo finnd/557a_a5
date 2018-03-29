@@ -27,17 +27,9 @@
 			var height = parseInt(svg.attr("height")) - (2*margin.top);
 			var g = svg.append("g").attr("transform","translate(" + margin.left + "," + margin.top + ")");
 
+
+			// https://github.com/d3/d3-time-format
 			var parseTime = d3.timeParse("%Y");
-
-			var xVals = d3.scaleTime()
-						  .rangeRound([0, width]);
-
-			var yVals = d3.scaleLinear()
-						  .rangeRound([height, 0]);
-
-			var line = d3.line()
-						 .x(function(d) {return xVals(d.year);})
-						 .y(function(d) {return yVals(d.grams);})
 
 			var data = []
 			d3.csv("data/irelandtobaccodata.csv", function(input) {
@@ -56,10 +48,21 @@
 			var lawDiv = d3.select("body").append("div")	
 
 			// Had some problem with extent() not returning a true array of max/min.
-			// Help from https://github.com/d3/d3/issues/2912					
+			// Help from https://github.com/d3/d3/issues/2912	
+			// ScaleTime help from https://stackoverflow.com/questions/36999574/d3v4-time-scale-axis-error-in-ticks-display
 
-			xVals.domain(d3.extent(data, function(d) {return d.year;}));
-			yVals.domain(d3.extent(data, function(d) {return d.grams;}));
+			var xVals = d3.scaleTime()
+						  .rangeRound([0, width])
+						  .domain(d3.extent(data, function(d) {return d.year;}));
+
+
+			var yVals = d3.scaleLinear()
+						  .rangeRound([height, 0])
+						  .domain(d3.extent(data, function(d) {return d.grams;}));
+
+			var line = d3.line()
+						 .x(function(d) {return xVals(d.year);})
+						 .y(function(d) {return yVals(d.grams);})				
 
 
 			// Axis Tutorial sourced form
